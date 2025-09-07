@@ -521,8 +521,7 @@ class Ventana:
 
     def Correr_juego(self): # aqui lo modifique para probar mesa directamete
         ejecutar = True
-        # --- PRUEBA: crea la mesa con varios jugadores NO FUNCIONA CON 6 NI 7 jugadores ---
-        mesa = Mesa(self.pantalla, 7)  #el numero son el de los jugadores
+        mesa = Mesa(self.pantalla, 6)  #el numero son el de los jugadores
         while ejecutar:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
