@@ -27,7 +27,7 @@ class Mesa:
         for archivo in os.listdir(ruta_cartas):
             if archivo.endswith(".png"):
                 imagen = pygame.image.load(os.path.join(ruta_cartas, archivo)).convert_alpha()
-                self.imagenes_cartas[archivo] = pygame.transform.scale(imagen, (60, 90))
+                self.imagenes_cartas[archivo] = pygame.transform.smoothscale(imagen, (60, 90))
 
     def inicializar_mazos(self):
         nro_mazos = self.mazo.calcular_nro_mazos(self.cantidad_jugadores)
@@ -89,8 +89,26 @@ class Mesa:
                 6: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 + 60)          
             }
     def dibujar(self):
-        self.pantalla.fill((0, 128, 0))
+
+        color_borde = (101, 67, 33)         # Marrón
+        color_verde_oscuro = (30, 90, 50)   # Verde oscuro
+        grosor_borde = 10
+
+        # Dibuja el borde marrón (rellena toda la pantalla)
+        self.pantalla.fill(color_borde)
+        # Dibuja el rectángulo verde oscuro encima, dejando el borde visible
+        pygame.draw.rect(
+            self.pantalla,
+            color_verde_oscuro,
+            (grosor_borde, grosor_borde,
+            constantes.ANCHO_VENTANA - 2 * grosor_borde,
+            constantes.ALTO_VENTANA - 2 * grosor_borde),
+            border_radius = constantes.REDONDEO_NORMAL
+        )
+
+       
         for i, jugador in enumerate(self.jugadores):
             if i in self.posiciones_jugadores:
                 x, y = self.posiciones_jugadores[i]
                 jugador.dibujar(self.pantalla, x, y, self.imagenes_cartas)
+
