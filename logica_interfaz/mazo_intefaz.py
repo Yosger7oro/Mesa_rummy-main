@@ -1,4 +1,4 @@
-from archivo_de_importaciones import importar_desde_carpeta
+from logica_interfaz.archivo_de_importaciones import importar_desde_carpeta
 import pygame
 Mazo = importar_desde_carpeta("mazo.py","Mazo")
 Menu = importar_desde_carpeta("menu.py","Menu","recursos_graficos")

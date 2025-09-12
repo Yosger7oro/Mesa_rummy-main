@@ -2,38 +2,55 @@ import pygame
 import os
 from recursos_graficos import constantes
 from logica_interfaz.archivo_de_importaciones import importar_desde_carpeta
-# from logica_interfaz.jugador_interfaz import Jugador
-# from logica_interfaz.mazo_intefaz import Mazo
 
-
-Mesa = importar_desde_carpeta("mesa.py","Mesa")
-
+# Importamos las clases de interfaz que ya creaste
 from logica_interfaz.mazo_intefaz import Mazo_interfaz as Mazo
-from logica_interfaz.jugador_interfaz import Jugador_interfaz as Jugador
+from logica_interfaz.jugador_interfaz import Jugador_interfaz 
+from logica_interfaz.cartas_interfaz import Cartas_interfaz  # si la mueves a su propio archivo
 
-class Mesa:
+class Mesa_interfaz:
     def __init__(self, pantalla, cantidad_jugadores):
         self.pantalla = pantalla
-        self.mazo = Mazo()
         self.cantidad_jugadores = cantidad_jugadores
+        
+        # 🔹 Pasamos la referencia al juego/pantalla al mazo de interfaz
+        self.mazo = Mazo(un_juego=self)
+
+        # Diccionario de imágenes de cartas
         self.imagenes_cartas = {}
         self.cargar_imagenes_cartas()
         
-        # Definir posiciones según cantidad de jugadores
+        # Posiciones según número de jugadores
         self.posiciones_jugadores = self.obtener_posiciones_jugadores(self.cantidad_jugadores)
 
+        # Jugadores con interfaz
         self.jugadores = []
         for i in range(self.cantidad_jugadores):
-            self.jugadores.append(Jugador(i + 1, f"J{i+1}", [])) 
+            x, y = self.posiciones_jugadores[i]
+            self.jugadores.append(
+                Jugador_interfaz(
+                    nro=i + 1,
+                    nombre=f"J{i+1}",
+                    un_juego=self,
+                    x=x,
+                    y=y,
+                    ancho=150,
+                    alto=50
+                )
+            )
 
+
+
+        # Inicializar y repartir
         self.inicializar_mazos()
         self.repartir_cartas()
 
     def cargar_imagenes_cartas(self):
-        ruta_cartas = "assets/Imagenes/Cartas"
+        ruta_cartas = os.path.join("assets", "Imagenes", "Cartas")
         for archivo in os.listdir(ruta_cartas):
             if archivo.endswith(".png"):
-                imagen = pygame.image.load(os.path.join(ruta_cartas, archivo)).convert_alpha()
+                ruta_completa = os.path.join(ruta_cartas, archivo)
+                imagen = pygame.image.load(ruta_completa).convert_alpha()
                 self.imagenes_cartas[archivo] = pygame.transform.scale(imagen, (60, 90))
 
     def inicializar_mazos(self):
@@ -59,7 +76,7 @@ class Mesa:
             return {
                 0: (constantes.ANCHO_VENTANA // 2 - 339, constantes.ALTO_VENTANA - 120),
                 1: (constantes.ANCHO_VENTANA // 2 + 325, constantes.ALTO_VENTANA // 2 - 45),
-                2: (constantes.ANCHO_VENTANA // 2 - 110, 60)           
+                2: (constantes.ANCHO_VENTANA // 2 - 110, 60)
             }
         elif cantidad == 4:
             return {
@@ -83,7 +100,7 @@ class Mesa:
                 2: (constantes.ANCHO_VENTANA // 2 + 325, constantes.ALTO_VENTANA // 2 - 120),
                 3: (constantes.ANCHO_VENTANA // 2 + 100, constantes.ALTO_VENTANA // 2 - 300),
                 4: (constantes.ANCHO_VENTANA // 2 - 300, constantes.ALTO_VENTANA // 2 - 300),
-                5: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 - 120) 
+                5: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 - 120)
             }
         elif cantidad == 7:
             return {
@@ -92,12 +109,13 @@ class Mesa:
                 2: (constantes.ANCHO_VENTANA // 2 + 325, constantes.ALTO_VENTANA // 2 - 120),
                 3: (constantes.ANCHO_VENTANA // 2 + 100, constantes.ALTO_VENTANA // 2 - 300),
                 4: (constantes.ANCHO_VENTANA // 2 - 300, constantes.ALTO_VENTANA // 2 - 300),
-                5: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 - 120),                
-                6: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 + 60)          
+                5: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 - 120),
+                6: (constantes.ANCHO_VENTANA // 2 - 540, constantes.ALTO_VENTANA // 2 + 60)
             }
+        else:
+            raise ValueError(f"No hay posiciones definidas para {cantidad} jugadores")
+
     def dibujar(self):
         self.pantalla.fill((0, 128, 0))
-        for i, jugador in enumerate(self.jugadores):
-            if i in self.posiciones_jugadores:
-                x, y = self.posiciones_jugadores[i]
-                jugador.dibujar(self.pantalla, x, y, self.imagenes_cartas)
+        for jugador in self.jugadores:
+            jugador.usuario.dibujar()  # usa el Elemento_texto del jugador

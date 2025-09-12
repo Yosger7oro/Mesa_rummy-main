@@ -9,7 +9,7 @@ from recursos_graficos import constantes
 from recursos_graficos.elementos_de_interfaz_de_usuario import Elemento_texto, Boton, BotonRadio, EntradaTexto, CartelAlerta
 from recursos_graficos.menu import Menu
 from redes_interfaz import acciones
-from logica_interfaz.mesa_interfaz import Mesa
+from logica_interfaz.mesa_interfaz import Mesa_interfaz
 
 
 """Clase ventana donde estaran todos los diseños e interacciones"""
@@ -851,7 +851,7 @@ class Ventana:
 
     def Correr_juego(self): # aqui lo modifique para probar mesa directamete
         ejecutar = True
-        mesa = Mesa(self.pantalla, 6)  #el numero son el de los jugadores
+        mesa = Mesa_interfaz(self.pantalla, 3)  #el numero son el de los jugadores
         while ejecutar:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:

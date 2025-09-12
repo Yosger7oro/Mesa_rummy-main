@@ -40,7 +40,7 @@ class Jugador_interfaz(Jugador):
             color=constantes.ELEMENTO_FONDO_PRINCIPAL,
             radio_borde=constantes.REDONDEO_INTERMEDIO,
             color_texto=constantes.COLOR_TEXTO_PRINCIPAL,
-            color_borde=constantes.ELEMENTO_FONDO_SECUNDARIO,
+            color_borde=constantes.ELEMENTO_FONDO_SECUNDARO,
             grosor_borde=constantes.BORDE_INTERMEDIO,
         )
         return usuario

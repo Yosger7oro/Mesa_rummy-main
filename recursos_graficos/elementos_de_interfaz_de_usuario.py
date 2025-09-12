@@ -19,7 +19,7 @@
 ##
 ## total_horas_perdidas_aquí = 30
 
-from archivo_de_importaciones import importar_desde_carpeta
+from recursos_graficos.archivo_de_importaciones import importar_desde_carpeta
 constantes = importar_desde_carpeta("constantes.py",nombre_carpeta="recursos_graficos")
 # import constantes
 import pygame

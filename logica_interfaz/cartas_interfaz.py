@@ -1,4 +1,4 @@
-from archivo_de_importaciones import importar_desde_carpeta
+from logica_interfaz.archivo_de_importaciones import importar_desde_carpeta
 import pygame
 
 Cartas = importar_desde_carpeta(
