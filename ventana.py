@@ -31,7 +31,7 @@ class Ventana:
             "nombre_unirse": "",
         }
 
-
+        self.fondo_ventana = constantes.FONDO_VENTANA
         self.elementos_creados = []
 
         # Logo
@@ -56,6 +56,12 @@ class Ventana:
         x = (constantes.ANCHO_VENTANA - ancho_elemento)/2
         y = (constantes.ALTO_VENTANA - alto_elemento)/2
         return (x,y)
+    # def Fondo_ventana(self):
+    #     if hasattr(self, "mesa") and self.mesa.visible:
+    #         print("Mostrando borde terciario")
+    #         return constantes.ELEMENTO_BORDE_TERCIARIO
+    #     print("Mostrando fondo ventana")
+    #     return constantes.FONDO_VENTANA
 
     """Funcion que crea el boton Jugar, se pasa por parametros las constantes, las posiciones se definen manualemente"""
     def Boton_jugar(self):
@@ -76,7 +82,8 @@ class Ventana:
             grosor_borde= constantes.BORDE_PRONUNCIADO,
             color_borde_hover= constantes.ELEMENTO_HOVER_PRINCIPAL,
             color_borde_clicado= constantes.ELEMENTO_CLICADO_PRINCIPAL,
-            accion= lambda: acciones.Mostrar_seccion(self,self.menu_inicio)
+            # accion= lambda: acciones.Mostrar_seccion(self,self.menu_inicio)
+            accion= lambda: self.mostrar_mesa()
             )
         self.elementos_creados.append(boton_jugar)
         return boton_jugar
@@ -755,6 +762,17 @@ class Ventana:
         self.menu_seleccion_sala = self.Menu_seleccion_sala()
         acciones.Mostrar_seccion(self, self.menu_seleccion_sala)
     """fin de las funciones para menu sala"""
+    
+    """inicio de la seccion mesa"""
+    def mostrar_mesa(self):
+        """Muestra la mesa"""
+        # Crear el menú si no existe
+        if not hasattr(self, "mesa"):
+            mesa = Mesa_interfaz(["Ana","Luis","Juan","Tungamandapia"],self)
+            self.mesa = mesa.mesa
+        acciones.Mostrar_seccion(self, self.mesa)
+        
+    """fin de la seccion mesa"""
 
     """Boton de salir del juego"""
     def salir(self):
@@ -787,7 +805,8 @@ class Ventana:
             "menu_mesa_espera", 
             "menu_nombre_creador", 
             "menu_nombre_usuario", 
-            "menu_seleccion_sala"
+            "menu_seleccion_sala",
+            "mesa"
         ]
     
         for menu_name in conditional_menus:
@@ -814,7 +833,8 @@ class Ventana:
             "menu_mesa_espera", 
             "menu_nombre_creador", 
             "menu_nombre_usuario", 
-            "menu_seleccion_sala"
+            "menu_seleccion_sala",
+            "mesa"
         ]
     
         for menu_name in conditional_menus:
@@ -822,7 +842,7 @@ class Ventana:
                 getattr(self, menu_name).verificar_hovers(posicion_raton)
 
     def ejecutar_dibujado(self):
-        self.pantalla.fill(constantes.FONDO_VENTANA)
+        # self.pantalla.fill(constantes.FONDO_VENTANA)
         
         self.boton_jugar.dibujar()
         self.menu_instrucciones.dibujar_menu()
@@ -839,57 +859,55 @@ class Ventana:
             self.menu_nombre_usuario.dibujar_menu()
         if hasattr(self, "menu_seleccion_sala"):
             self.menu_seleccion_sala.dibujar_menu()
+        if hasattr(self,"mesa"):
+            self.mesa.dibujar_menu()
 
         self.cartel_alerta.dibujar()
     
-    def inicializar_mazo(self): #a ver si esto funciona
-        print("Cartas encontradas:", list(self.imagenes_cartas.keys()))  # Depuración
-        for nombre_carta in self.imagenes_cartas.keys():
-            self.mazo.agregar_cartas(nombre_carta)
-        print("Cartas en el mazo:", len(self.mazo.cartas))  # Depuración
-        self.mazo.revolver_mazo()
+    # def inicializar_mazo(self): #a ver si esto funciona
+    #     print("Cartas encontradas:", list(self.imagenes_cartas.keys()))  # Depuración
+    #     for nombre_carta in self.imagenes_cartas.keys():
+    #         self.mazo.agregar_cartas(nombre_carta)
+    #     print("Cartas en el mazo:", len(self.mazo.cartas))  # Depuración
+    #     self.mazo.revolver_mazo()
 
-    def Correr_juego(self): # aqui lo modifique para probar mesa directamete
+    # def Correr_juego(self): # aqui lo modifique para probar mesa directamete
+    #     ejecutar = True
+    #     mesa = Mesa_interfaz(self.pantalla, 3)  #el numero son el de los jugadores
+    #     while ejecutar:
+    #         for evento in pygame.event.get():
+    #             if evento.type == pygame.QUIT:
+    #                 ejecutar = False
+
+    #         self.pantalla.fill(constantes.VERDE)  # Fondo verde de mesa 
+    #         mesa.dibujar()  # Dibuja la mesa y las cartas
+
+    #         pygame.display.flip()
+    #         self.clock.tick(constantes.FPS)
+    #     pygame.quit() 
+    def Correr_juego(self):
         ejecutar = True
-        mesa = Mesa_interfaz(self.pantalla, 3)  #el numero son el de los jugadores
         while ejecutar:
-            for evento in pygame.event.get():
+            posicion_raton = pygame.mouse.get_pos()
+            eventos = pygame.event.get()
+
+            # actualizar hover con la posición actual del ratón
+            self.ejecutar_verificacion_hovers(posicion_raton)
+
+            # ahora procesar eventos
+            for evento in eventos:
                 if evento.type == pygame.QUIT:
                     ejecutar = False
+                self.ejecutar_manejo_eventos(evento)
 
-            self.pantalla.fill(constantes.VERDE)  # Fondo verde de mesa 
-            mesa.dibujar()  # Dibuja la mesa y las cartas
+            
+            self.pantalla.fill(self.fondo_ventana)
+
+            self.ejecutar_dibujado()
 
             pygame.display.flip()
             self.clock.tick(constantes.FPS)
-        pygame.quit() 
-#     def Correr_juego(self):
-#         ejecutar = True
-#         while ejecutar:
-#             posicion_raton = pygame.mouse.get_pos()
-#             eventos = pygame.event.get()
-
-#             # actualizar hover con la posición actual del ratón
-#             self.ejecutar_verificacion_hovers(posicion_raton)
-
-#             # ahora procesar eventos
-#             for evento in eventos:
-#                 if evento.type == pygame.QUIT:
-#                     ejecutar = False
-#                 self.ejecutar_manejo_eventos(evento)
-
-            
-#             self.pantalla.fill(constantes.FONDO_VENTANA)
-
-#             self.ejecutar_dibujado()
-
-#             pygame.display.flip()
-#             self.clock.tick(constantes.FPS)
-#         pygame.quit()
-
-# ventana = Ventana()
-# ventana.Correr_juego()
-
+        pygame.quit()
 
 ventana = Ventana()
 ventana.Correr_juego()

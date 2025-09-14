@@ -12,17 +12,17 @@ class Cartas_interfaz(Cartas):
         super().__init__(*args, **kwargs)
 
         self.ruta_imagen = ruta_imagen
-        self.imagen = pygame.image.load(self.ruta_imagen)
+        self.imagen = pygame.image.load(self.ruta_imagen) if ruta_imagen is not None else None
     def imagen_asociada(self):
         return self.imagen
 
 
 
-#Ejemplo de uso:
-img_corazon_2 = importar_desde_carpeta(
-    nombre_archivo="Imagenes/Cartas/Corazon (2).png",
-    nombre_carpeta="assets")
+# #Ejemplo de uso:
+# img_corazon_2 = importar_desde_carpeta(
+#     nombre_archivo="Imagenes/Cartas/Corazon (2).png",
+#     nombre_carpeta="assets")
 
-carta1 = Cartas_interfaz(ruta_imagen=img_corazon_2,numero=2,figura="picas")
-print(carta1)
-print(carta1.imagen_asociada())
+# carta1 = Cartas_interfaz(ruta_imagen=img_corazon_2,numero=2,figura="picas")
+# print(carta1)
+# print(carta1.imagen_asociada())

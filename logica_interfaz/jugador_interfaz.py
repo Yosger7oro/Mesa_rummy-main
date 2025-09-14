@@ -28,6 +28,7 @@ class Jugador_interfaz(Jugador):
     def datos_jugador(self):
         return f'{self.nombre_jugador} j{self.nro_jugador}'
     def elemento_usuario(self):
+        redondeo = int(constantes.REDONDEO_NORMAL*0.50)
         usuario = Elemento_texto(
             self.un_juego,
             self.datos_jugador(),
@@ -38,7 +39,7 @@ class Jugador_interfaz(Jugador):
             tamaño_fuente=constantes.F_PEQUENA,
             fuente=constantes.FUENTE_ESTANDAR,
             color=constantes.ELEMENTO_FONDO_PRINCIPAL,
-            radio_borde=constantes.REDONDEO_INTERMEDIO,
+            radio_borde=redondeo,
             color_texto=constantes.COLOR_TEXTO_PRINCIPAL,
             color_borde=constantes.ELEMENTO_FONDO_SECUNDARO,
             grosor_borde=constantes.BORDE_INTERMEDIO,

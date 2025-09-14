@@ -117,8 +117,8 @@ ALTO_MENU_CNT_J = ALTO_VENTANA*0.95
 #Fin de menu Cantidad de Jugadores
 
 #Menu Mesa de espera(mesa_espera) dimensiones
-ANCHO_MENU_MESA_ESPERA = ANCHO_VENTANA
-ALTO_MENU_MESA_ESPERA = ALTO_VENTANA
+ANCHO_MENU_MESA_ESPERA = ANCHO_VENTANA*0.98
+ALTO_MENU_MESA_ESPERA = ALTO_VENTANA*0.98
 #Fin de menu Cantidad de Jugadores
 
 
