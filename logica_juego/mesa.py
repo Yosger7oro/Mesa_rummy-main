@@ -378,5 +378,77 @@ class Mesa:
             
             if ronda_terminada:
                 break
+'''
 
+Para que las cartas se vean nítidas, debes usar smoothcale en lugar de scale.
+
+def cargar_imagenes_cartas(self):
+        ruta_cartas = "assets/Imagenes/Cartas"
+        for archivo in os.listdir(ruta_cartas):
+            if archivo.endswith(".png"):
+                imagen = pygame.image.load(os.path.join(ruta_cartas, archivo)).convert_alpha()
+                self.imagenes_cartas[archivo] = pygame.transform.smoothscale(imagen, (60, 90))
+
+
+Métodos viejos para dibujar el mazo en pantalla
+
+def dibujar_mazo(self):
+
+    
+        centro_x = constantes.ANCHO_VENTANA // 2
+        centro_y = constantes.ALTO_VENTANA // 2
+
+        #carta para el dorso
+
+        ruta_dorso = os.path.join("assets/Imagenes/Cartas", "!Reverso.png")
+        if os.path.exists(ruta_dorso):
+            carta_img = pygame.image.load(ruta_dorso).convert_alpha()
+            carta_img = pygame.transform.smoothscale(carta_img, (60, 90))
+        elif self.imagenes_cartas:
+            # Si no existe, usa la primera carta como antes
+            nombre_carta = list(self.imagenes_cartas.keys())[0]
+            carta_img = pygame.transform.smoothscale(self.imagenes_cartas[nombre_carta], (60, 90))
+        else:
+            return  # No hay imagen para mostrar
+        
+        # Dibuja el mazo en el centro de la mesa
+        for i in range(7):
+            offset_x = (i - 3) * 2
+            offset_y = (i - 3) * 2
+            angulo = (i - 3) * 3
+            carta_rotada = pygame.transform.rotate(carta_img, angulo)
+            rect = carta_rotada.get_rect(center=(centro_x + offset_x, centro_y + offset_y))
+            self.pantalla.blit(carta_rotada, rect.topleft)
+
+            
+
+            El método dibujar de la mesa cambia para mostrar el 
+            borde marrón y color verde 
+            
+    def dibujar(self):
+
+        color_borde = (101, 67, 33)         # Marrón
+        color_verde_oscuro = (30, 90, 50)   # Verde oscuro
+        grosor_borde = 10
+
+        # Dibuja el borde marrón (rellena toda la pantalla)
+        self.pantalla.fill(color_borde)
+        # Dibuja el rectángulo verde oscuro encima, dejando el borde visible
+        pygame.draw.rect(
+            self.pantalla,
+            color_verde_oscuro,
+            (grosor_borde, grosor_borde,
+            constantes.ANCHO_VENTANA - 2 * grosor_borde,
+            constantes.ALTO_VENTANA - 2 * grosor_borde),
+            border_radius = constantes.REDONDEO_NORMAL
+        )
+
+        self.dibujar_mazo()
+       
+        for i, jugador in enumerate(self.jugadores):
+            if i in self.posiciones_jugadores:
+                x, y = self.posiciones_jugadores[i]
+                jugador.dibujar(self.pantalla, x, y, self.imagenes_cartas)
+
+'''
 

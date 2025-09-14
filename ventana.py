@@ -893,3 +893,28 @@ class Ventana:
 
 ventana = Ventana()
 ventana.Correr_juego()
+
+'''
+
+Este método de acá permite que las cartas reaccionen al ser clickeadas. 
+
+    def Correr_juego(self): # aqui lo modifique para probar mesa directamete
+        ejecutar = True
+        mesa = Mesa(self.pantalla, 6)  #el numero son el de los jugadores
+        while ejecutar:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    ejecutar = False
+                elif evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                    pos_mouse = pygame.mouse.get_pos()
+                    jugador = mesa.jugadores[0]  # Suponiendo que quieres solo el jugador 1
+                    for rect, carta in jugador.cartas_rects:
+                        if rect.collidepoint(pos_mouse):
+                            print(f"Carta {carta} seleccionada")
+                            
+            self.pantalla.fill(constantes.VERDE)  # Fondo verde de mesa 
+            mesa.dibujar()  # Dibuja la mesa y las cartas
+
+            pygame.display.flip()
+            self.clock.tick(constantes.FPS)
+        pygame.quit() '''
