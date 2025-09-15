@@ -4,6 +4,8 @@ import os
 from recursos_graficos import constantes
 from logica_interfaz.archivo_de_importaciones import importar_desde_carpeta
 
+
+
 #Importaciones de clases de interfaz
 Mazo = importar_desde_carpeta(
     nombre_archivo="mazo_interfaz.py",
@@ -29,20 +31,36 @@ Boton = importar_desde_carpeta("elementos_de_interfaz_de_usuario.py","Boton","re
 class Menu_adaptado(Menu):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
     def dibujar_fondo(self):
-        """Dibuja solo el fondo y el borde del menú(recto)"""
+        """Dibuja un rectángulo de fondo más grande que el menú, sin borde, y luego el menú centrado."""
+        # Tamaño del rectángulo de fondo (un poco más grande que el menú)
+        rect_fondo = pygame.Rect(
+            0,
+            0,
+            constantes.ANCHO_VENTANA,
+            constantes.ALTO_VENTANA,
+        )
+
+        # Dibujar rectángulo de fondo
+        pygame.draw.rect(self.pantalla, self.borde_color, rect_fondo, border_radius=0)
+
+        # Dibujar menú encima del fondo (solo el rect del menú, sin borde)
         pygame.draw.rect(self.pantalla, self.fondo_color, self.menu, border_radius=self.redondeo)
-        if self.grosor_borde > 0 :
-            return
-        # constantes.FONDO_VENTANA = constantes.ELEMENTO_BORDE_TERCIARIO
+
 
 
 class Mesa_interfaz():
     _cartas_imagenes = None  # cache estático
-    def __init__(self,jugadores,un_juego):
+    def __init__(self,jugadores,un_juego,id_jugador):
+        self.lista_informacion_mesa = {
+            1
+        }
+        self.id_jugador = id_jugador
         self.jugadores = jugadores
         # self.un_juego = un_juego
         self.mesa = self.crear_mesa(un_juego)
+
     def jugador_mano_orden(self,lista_jugadores):
         indice_del_jugador_mano, nom_jug_mano = choice(list(enumerate(lista_jugadores)))
         print(f"El jugador mano es: {nom_jug_mano.nombre_jugador}")
@@ -74,30 +92,57 @@ class Mesa_interfaz():
             constantes.REDONDEO_NORMAL
         )
         self.iniciar_partida(un_juego,mesa)
-        un_juego.fondo_ventana = constantes.ELEMENTO_BORDE_TERCIARIO
         return mesa
     def iniciar_partida(self,un_juego,mesa):
         lista_jugadores = self.cargar_jugadores(un_juego,mesa)
+        print([jugador.nombre_jugador for jugador in lista_jugadores])#para depurar
         self.cargar_cartas(mesa,lista_jugadores) # Repartir cartas y colocarlas automáticamente
-        
     """Metodos para la carga de jugadores"""
     def dimensiones_jugador(self):
         alto_jugador = constantes.ELEMENTO_PEQUENO_ALTO * 0.50
         ancho_jugador = constantes.ELEMENTO_GRANDE_ANCHO * 0.40
-        posiciones = [
-            ("abajo", 0.5),  # jugador 0
-            ("derecha", 0.7),  # jugador 1
-            ("arriba", 0.5),  # jugador 2
-            ("izquierda", 0.7),  # jugador 3
-        ]
-        return alto_jugador,ancho_jugador,posiciones
+        if len(self.jugadores) < 5:
+            posiciones = [
+                ("abajo", 0.5),      # Abajo centrado
+                ("derecha", 0.7),    # derecha abajo
+                ("arriba", 0.5),     # arriba centrado
+                ("izquierda", 0.7),  # izquierda abajo
+            ]
+        else:
+            posiciones = [
+                ("abajo", 0.5),      # abajo-centrado
+                ("derecha", 1),      # derecha-abajo     
+                ("derecha", 0.5),    # derecha-enmedio
+                ("arriba", 0.65),    # arriba-derecha
+                ("arriba", 0.25),    # arriba-izquierda
+                ("izquierda", 0.5),  # izquierda-enmedio
+                ("izquierda", 1),    # izquierda-abajo
+            ]
+        return alto_jugador, ancho_jugador, posiciones
+    def reordenar_jugadores(self, lista_jugadores):
+        """
+        Rota la lista de jugadores de modo que el jugador local (self.id)
+        quede siempre en la primera posición (abajo).
+        """
+        # OJO: aquí self.id no es el nombre, sino el índice del jugador local
+        # (ejemplo: si self.id == 3, significa que el jugador 3 debe ir abajo)
+        indice_local = self.id_jugador - 1  # convertir id a índice de lista (0-based)
+
+        return lista_jugadores[indice_local:] + lista_jugadores[:indice_local]
+
+
     def cargar_jugadores(self, un_juego, mesa):
-        alto_jugador,ancho_jugador,posiciones = self.dimensiones_jugador()
-        cantidad_jugadores = len(self.jugadores)
+        alto_jugador, ancho_jugador, posiciones = self.dimensiones_jugador()
+
+        # Rotamos solo para saber quién va en "abajo", "arriba", etc.
+        jugadores_rotados = self.reordenar_jugadores(self.jugadores)
+
         lista_objeto_jugador = []
 
-        for i in range(cantidad_jugadores):
-            direccion, alineacion = posiciones[i]
+        for i, nombre in enumerate(self.jugadores):  # mantener orden de entrada
+            # buscamos dónde debería ir gráficamente este jugador
+            indice_rotado = jugadores_rotados.index(nombre)
+            direccion, alineacion = posiciones[indice_rotado]
 
             if direccion == "abajo":
                 x, y = self.alinear_abajo(ancho_jugador, alto_jugador, alineacion)
@@ -114,21 +159,23 @@ class Mesa_interfaz():
 
             jugador = Jugador(
                 un_juego=un_juego,
-                x=x,
-                y=y,
+                x=x, y=y,
                 ancho=ancho_jugador,
                 alto=alto_jugador,
-                nro=(i + 1),
-                nombre=self.jugadores[i],
+                nro=(i + 1),      # orden de entrada a partida
+                nombre=nombre     # es string, no objeto
             )
 
             mesa.botones.append(jugador.usuario)
             lista_objeto_jugador.append(jugador)
 
-            # Guardar disposición de cartas
             jugador.fila_cartas = fila_cartas
-            jugador.offset_cartas = 30  # separación entre cartas
+            jugador.direccion = direccion
+            jugador.offset_cartas = 40 if jugador.nro_jugador == self.id_jugador else 20
+
         return lista_objeto_jugador
+
+
     """fin de los metodos para la carga de jugadores"""
 
     """Inicio de los metodos para cargar_cartas"""
@@ -197,42 +244,50 @@ class Mesa_interfaz():
         #mostrar el nro de cartas restantes
         mazo.mostrar_numero_cartas("El número de cartas en el mazo: ")
         
-        # jugadores_reordenados = cls.jugador_mano_orden()
         
         #Mostrar visualmente la mano de cada jugador
         self.mostrar_manos(manos,mesa,lista_jugadores_reordenado)
-    def mostrar_manos(self,manos,mesa,lista_jugadores):
+    def mostrar_manos(self, manos, mesa, lista_jugadores):
         # Colocar cartas automáticamente
         for i, mano in enumerate(manos):
             jugador = lista_jugadores[i]
 
             dx, dy = (jugador.offset_cartas, 0) if jugador.fila_cartas == "horizontal" else (0, jugador.offset_cartas)
 
-            match jugador.nro_jugador:
-                case 1:  # Abajo
-                    x, y = jugador.x*0.86, jugador.y*1.1
-                case 2:  # Derecha
-                    x, y = jugador.x*1.2, jugador.y*0.8  
-                    dy = -jugador.offset_cartas
-                case 3:  # Arriba
-                    x, y = jugador.x*1.4, jugador.y*-0.7
+            # Decidir posición inicial según dirección
+            if jugador.fila_cartas == "horizontal":
+                if jugador.direccion == "abajo":
+                    x, y = jugador.x - (jugador.ancho/2), jugador.y + (jugador.alto + 10)
+                elif jugador.direccion == "arriba":
+                    x, y = jugador.x + (jugador.ancho - 50), jugador.y - (jugador.alto + 75)
                     dx = -jugador.offset_cartas
-                case 4:  # Izquierda
-                    x, y = jugador.x*-0.7, jugador.y*0.18
+            elif jugador.fila_cartas == "vertical":
+                if jugador.direccion == "derecha":
+                    x, y = jugador.x + (jugador.ancho - 50), jugador.y - (jugador.alto + 25)
+                    dy = -jugador.offset_cartas
+                elif jugador.direccion == "izquierda":
+                    x, y = jugador.x - (jugador.ancho - 150), jugador.y - (jugador.alto + 220)
 
-            print(f'\nCartas del jugador {jugador.nro_jugador} - {jugador.nombre_jugador}:')
+            # Para depurar
+            print(f"\nJugador: {jugador.nombre_jugador} nro {jugador.nro_jugador} "
+                f"dx={dx} dy={dy} fila={jugador.fila_cartas}")
+
+            # Escala (ejemplo: jugador local más grande)
+            escala = 0.05 if jugador.nro_jugador == self.id_jugador else 0.035
 
             for carta in mano:
                 print(carta)
                 cart_imagen = carta.imagen_asociada()
 
+                # Rotar si está en vertical
                 if jugador.fila_cartas == "vertical":
-                    rotacion = -90 if jugador.nro_jugador == 2 else 90
+                    rotacion = -90 if jugador.direccion == "derecha" else 90
                     cart_imagen = pygame.transform.rotate(cart_imagen, rotacion)
 
-                mesa.agregar_imagen(cart_imagen, (x, y), 0.05)
+                mesa.agregar_imagen(cart_imagen, (x, y), escala)
                 x += dx
                 y += dy
+
     """fin de metodos para la creacion de manos"""
 
     def alinear_abajo(self,ancho,alto,alineacion_x):
@@ -244,10 +299,10 @@ class Mesa_interfaz():
         y = (constantes.ALTO_MENU_MESA_ESPERA-alto)*0.13
         return (x,y)
     def alinear_izquierda(self,ancho,alto,alineacion_y):
-        x = (constantes.ANCHO_MENU_MESA_ESPERA-ancho)*0.05
+        x = (constantes.ANCHO_MENU_MESA_ESPERA-ancho)*0.02
         y = (constantes.ALTO_MENU_MESA_ESPERA-alto)*alineacion_y
         return (x,y)
     def alinear_derecha(self,ancho,alto,alineacion_y):
-        x = (constantes.ANCHO_MENU_MESA_ESPERA-ancho)*0.95
+        x = (constantes.ANCHO_MENU_MESA_ESPERA-ancho)
         y = (constantes.ALTO_MENU_MESA_ESPERA-alto)*alineacion_y
         return (x,y)

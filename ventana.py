@@ -23,15 +23,14 @@ class Ventana:
         pygame.display.set_caption("Rummy500")
         # Datos de juego
         self.lista_elementos = {
-            "nombre_creador": "",
-            "nombre_sala": "",
-            "cantidad_jugadores":0,
+            "nombre_creador": "Ana",
+            "nombre_sala": "Peregrinos",
+            "cantidad_jugadores":7,
             "ip_sala":"",
-            "lista_jugadores": [],
+            "lista_jugadores": ["Ana","Luis","Juan","Tungamandapia","Roberto","Pepe","May"], #probando
             "nombre_unirse": "",
         }
 
-        self.fondo_ventana = constantes.FONDO_VENTANA
         self.elementos_creados = []
 
         # Logo
@@ -766,12 +765,22 @@ class Ventana:
     """inicio de la seccion mesa"""
     def mostrar_mesa(self):
         """Muestra la mesa"""
+        nombre_unirse = self.lista_elementos["nombre_unirse"]
+        nombre_creador = self.lista_elementos["nombre_creador"]
+        jugadores = self.lista_elementos["lista_jugadores"]
         # Crear el menú si no existe
         if not hasattr(self, "mesa"):
-            mesa = Mesa_interfaz(["Ana","Luis","Juan","Tungamandapia"],self)
+            identificador = self.Identificador_jugador(nombre_unirse,nombre_creador,jugadores)
+            mesa = Mesa_interfaz(jugadores,self,identificador)
             self.mesa = mesa.mesa
         acciones.Mostrar_seccion(self, self.mesa)
-        
+    def Identificador_jugador(self,nombre_unirse,nombre_creador,jugadores):
+        if nombre_unirse:
+            nombre =  nombre_unirse
+        else:
+            nombre =  nombre_creador
+        posicion_jugador = jugadores.index(nombre)+1
+        return posicion_jugador
     """fin de la seccion mesa"""
 
     """Boton de salir del juego"""
@@ -901,7 +910,7 @@ class Ventana:
                 self.ejecutar_manejo_eventos(evento)
 
             
-            self.pantalla.fill(self.fondo_ventana)
+            self.pantalla.fill(constantes.FONDO_VENTANA)
 
             self.ejecutar_dibujado()
 
