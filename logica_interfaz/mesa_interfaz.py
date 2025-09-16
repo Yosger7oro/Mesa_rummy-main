@@ -27,7 +27,7 @@ Carta = importar_desde_carpeta(
 #Importar recursos graficos
 Menu = importar_desde_carpeta("menu.py","Menu","recursos_graficos")
 Boton = importar_desde_carpeta("elementos_de_interfaz_de_usuario.py","Boton","recursos_graficos")
-BotonImagen = importar_desde_carpeta("elementos_de_interfaz_de_usuario.py", "BotonImagen", "recursos_graficos")
+
 
 class Menu_adaptado(Menu):
     def __init__(self, *args, **kwargs):

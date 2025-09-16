@@ -715,29 +715,6 @@ class CartelAlerta:
                 self.pantalla.blit(surface, (x_texto, y_texto))
                 y_texto += surface.get_height() + 5
 
-class BotonImagen:
-    def __init__(self, un_juego, imagen, x, y, ancho, alto, accion=None):
-        self.un_juego = un_juego
-        self.imagen_original = imagen
-        self.imagen = pygame.transform.smoothscale(imagen, (ancho, alto))
-        self.rect = pygame.Rect(x, y, ancho, alto)
-        self.accion = accion
-        self.hover = False
-
-    def dibujar(self):
-        pantalla = self.un_juego.pantalla
-        if self.hover:
-            pygame.draw.rect(pantalla, (255,255,255), self.rect, 4)
-        pantalla.blit(self.imagen, self.rect.topleft)
-
-    def manejar_evento(self, evento):
-        if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-            if self.rect.collidepoint(pygame.mouse.get_pos()):
-                if self.accion:
-                    self.accion()
-
-    def verificar_hover(self, pos):
-        self.hover = self.rect.collidepoint(pos)
 class BotonRadioImagenes(BotonRadio):
     def __init__(self, un_juego, imagen, scala, x, y,radio_borde=0, lift_offset=20,grupo=None, valor=None, deshabilitado=False, accion=None,color_borde=(0,0,0), color_borde_hover=(255,0,0), color_borde_clicado=(0,255,0)):
 
@@ -749,7 +726,7 @@ class BotonRadioImagenes(BotonRadio):
             self.alto = self.imagen_original.get_height()
             tamano = (int(self.ancho*self.scala), int(self.alto*self.scala))
             self.ancho,self.alto = tamano
-            self.imagen = pygame.transform.scale(self.imagen_original, tamano)
+            self.imagen = pygame.transform.smoothscale(self.imagen_original, tamano)
         else:
             self.imagen = None
         # Llamamos a super con color de fondo neutro (para que color_actual se inicialice bien)
