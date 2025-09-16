@@ -8,6 +8,15 @@ CartelAlerta = importar_desde_carpeta(
     nombre_clase="CartelAlerta",
     nombre_carpeta="recursos_graficos",
 )
+BotonRadioImagenes = importar_desde_carpeta(
+    nombre_archivo="elementos_de_interfaz_de_usuario.py",
+    nombre_clase="BotonRadioImagenes",
+    nombre_carpeta="recursos_graficos",
+)
+constantes = importar_desde_carpeta(
+    nombre_archivo="constantes.py",
+    nombre_carpeta="recursos_graficos",
+)
 
 
 imagenes_mazo = []
@@ -23,7 +32,7 @@ class Mazo_interfaz(Mazo):
     def __init__(self, *args, un_juego=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.un_juego = un_juego
-        self.imagen_mazo = pygame.image.load(imagenes_mazo[0])
+        self.mazo_lleno = pygame.image.load(imagenes_mazo[0])
 
     def MensajeAlerta(self, mensaje, ancho=500, alto=300):
         """
@@ -47,5 +56,28 @@ class Mazo_interfaz(Mazo):
         self.MensajeAlerta(f'{mensaje} {len(self.cartas)}')
     def reparticion_visual_cartas(self):
         self.MensajeAlerta("Repartiendo cartas")
+    def Elemento_mazo(self,imagen,scala,accion):
+        elemento_mazo = BotonRadioImagenes(
+            un_juego=self.un_juego,imagen=imagen,scala=scala,x=0, y=0,radio_borde=5,color_borde=None,color_borde_hover=None,color_borde_clicado=None,grupo=None,valor=self.cartas,deshabilitado=False,accion=None,lift_offset=0)
+        ancho = elemento_mazo.ancho
+        alto = elemento_mazo.alto
+        x = (constantes.ANCHO_MENU_MESA_ESPERA - ancho) // 2
+        y = (constantes.ALTO_MENU_MESA_ESPERA - alto) // 2
+        elemento_mazo = BotonRadioImagenes(
+            un_juego=self.un_juego,
+            imagen=imagen,
+            scala=scala,
+            x=x, y=y,
+            radio_borde=5,
+            color_borde=constantes.ELEMENTO_FONDO_TERCIARIO,
+            color_borde_hover=constantes.ELEMENTO_FONDO_TERCIARIO,
+            color_borde_clicado=constantes.ELEMENTO_FONDO_TERCIARIO,
+            grupo=None,
+            valor=self.cartas,
+            deshabilitado=False,
+            accion=accion,
+            lift_offset=0
+        )
+        return elemento_mazo
 
 

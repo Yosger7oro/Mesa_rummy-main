@@ -372,12 +372,18 @@ class BotonRadio(Boton):
     def manejar_evento(self, evento):
         if not self.visible or self.deshabilitado:
             return False
+
+        # Si es un grupo de 1 => que se comporte como un Boton normal
+        if self.grupo is None:
+            return Boton.manejar_evento(self, evento)
+
+        # --- Caso normal: grupo de 2 o más (radio button) ---
         if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
             if hasattr(evento, 'pos') and self.rect.collidepoint(evento.pos):
-                # seleccionar y ejecutar acción
                 self.sobre_el_elemento(True)
                 return True
         return False
+
 
 
     def seleccionar(self):
@@ -732,3 +738,67 @@ class BotonImagen:
 
     def verificar_hover(self, pos):
         self.hover = self.rect.collidepoint(pos)
+class BotonRadioImagenes(BotonRadio):
+    def __init__(self, un_juego, imagen, scala, x, y,radio_borde=0, lift_offset=20,grupo=None, valor=None, deshabilitado=False, accion=None,color_borde=(0,0,0), color_borde_hover=(255,0,0), color_borde_clicado=(0,255,0)):
+
+        self.imagen_original = imagen
+        self.scala = scala
+        self.lift_offset = lift_offset
+        if self.imagen_original:
+            self.ancho = self.imagen_original.get_width()
+            self.alto = self.imagen_original.get_height()
+            tamano = (int(self.ancho*self.scala), int(self.alto*self.scala))
+            self.ancho,self.alto = tamano
+            self.imagen = pygame.transform.scale(self.imagen_original, tamano)
+        else:
+            self.imagen = None
+        # Llamamos a super con color de fondo neutro (para que color_actual se inicialice bien)
+        super().__init__(
+            un_juego=un_juego,
+            texto="",  # no renderiza texto
+            ancho=self.ancho,
+            alto=self.alto,
+            x=x,
+            y=y,
+            tamaño_fuente=0,
+            fuente=None,
+            color=(200, 200, 200),  # color neutro solo para inicializar
+            radio_borde=radio_borde,
+            color_borde=color_borde,
+            color_borde_clicado=color_borde_clicado,
+            grupo=grupo,
+            valor=valor,
+            deshabilitado=deshabilitado,
+            accion=accion
+        )
+        
+        self.color_borde_hover = color_borde_hover
+        self.rect_base_y = self.rect.top
+        self.grosor_borde = 2  # aseguramos que tenga grosor
+
+        
+
+    def dibujar(self):
+        if not self.visible:
+            return
+
+        # Dibujar borde
+        pygame.draw.rect(self.pantalla, self.color_borde_actual, self.rect,width=self.grosor_borde, border_radius=self.radio_borde)
+
+        if self.imagen:
+            imagen_rect = self.imagen.get_rect(center=self.rect.center)
+            self.pantalla.blit(self.imagen, imagen_rect)
+        # Si está deshabilitado, dibujar overlay gris translúcido
+        if self.deshabilitado:
+            overlay = pygame.Surface((self.ancho, self.alto), pygame.SRCALPHA)
+            overlay.fill((100, 100, 100, 120))  # gris con transparencia
+            self.pantalla.blit(overlay, self.rect.topleft)
+
+    def manejar_evento(self,evento):
+        super().manejar_evento(evento)
+        offset_y = -self.lift_offset if self.seleccionado else 0
+        self.rect.top = self.rect_base_y + offset_y
+
+    def deseleccionar(self):
+        self.seleccionado = False
+        self.color_borde_actual = self.color_borde

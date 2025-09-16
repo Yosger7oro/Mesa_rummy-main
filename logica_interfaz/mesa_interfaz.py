@@ -196,7 +196,7 @@ class Mesa_interfaz():
 
             # Escala (ejemplo: jugador local más grande)
             escala = 0.05 if jugador.nro_jugador == self.id_jugador else 0.035
-
+            mano_jugador_i = []
             for carta in mano:
                 print(carta)
 
@@ -209,8 +209,12 @@ class Mesa_interfaz():
                 if jugador.fila_cartas == "vertical":
                     rotacion = -90 if jugador.direccion == "derecha" else 90
                     cart_imagen = pygame.transform.rotate(cart_imagen, rotacion)
-
-                mesa.agregar_imagen(cart_imagen, (x, y), escala)
+                
+                #puede interactuar con sus cartas mas no con las de los demas
+                if self.id_jugador != jugador.nro_jugador:
+                    mesa.agregar_imagen(cart_imagen, (x, y), escala)
+                else:
+                    mesa.botones.append(carta.Elemento_carta(mano_jugador_i,x,y,escala,cart_imagen))
                 x += dx
                 y += dy
     def alinear_abajo(self,ancho,alto,alineacion_x):
@@ -246,35 +250,13 @@ class Mesa_interfaz():
             constantes.REDONDEO_NORMAL
         )
 
-        ruta_mazo = importar_desde_carpeta(
-            nombre_archivo="Imagenes/Mazo/mazo1.png",
-            nombre_carpeta="assets"
-        )
-        imagen_mazo = pygame.image.load(ruta_mazo).convert_alpha()
-        # Tamaño del botón (ajusta aquí el tamaño) :)
-        ancho, alto = 100, 140
-
-        x_centro = (constantes.ANCHO_MENU_MESA_ESPERA - ancho) // 2
-        y_centro = (constantes.ALTO_MENU_MESA_ESPERA - alto) // 2
-        boton_mazo = BotonImagen(
-            un_juego=un_juego,
-            imagen=imagen_mazo,
-            x=x_centro,
-            y=y_centro,
-            ancho=ancho,
-            alto=alto,
-            accion=lambda: print("se ha seleccionado el mazo")
-        )
-        mesa.botones.append(boton_mazo)
-
-        self.iniciar_partida(un_juego,mesa)
+        self.manejar_partida(un_juego,mesa)
         return mesa
-    def iniciar_partida(self,un_juego,mesa):
+    def manejar_partida(self,un_juego,mesa):
         lista_jugadores = self.cargar_jugadores(un_juego,mesa)
         print([jugador.nombre_jugador for jugador in lista_jugadores])#para depurar
-        self.cargar_cartas(mesa,lista_jugadores) # Repartir cartas y colocarlas automáticamente
+        self.iniciar_partida(un_juego,mesa,lista_jugadores) # Repartir cartas y colocarlas automáticamente
 
-    """Metodos para la carga de jugadores"""
     def cargar_jugadores(self, un_juego, mesa):
         
         alto_jugador, ancho_jugador, posiciones = self.dimensiones_jugador()
@@ -308,14 +290,13 @@ class Mesa_interfaz():
             jugador.offset_cartas = 40 if jugador.nro_jugador == self.id_jugador else 20
 
         return lista_objeto_jugador
-    """fin de los metodos para la carga de jugadores"""
 
     
-    def cargar_cartas(self, mesa, lista_jugadores):
+    def iniciar_partida(self,un_juego, mesa, lista_jugadores):
         palos,nro_carta,cartas_imagenes = self.preparar_imagenes_cartas()
         cantidad_de_jugadores = len(lista_jugadores)
 
-        mazo = Mazo()
+        mazo = Mazo(un_juego=un_juego)
         nro_mazos = mazo.calcular_nro_mazos(cantidad_de_jugadores)
         
         # Crear mazo
@@ -323,7 +304,7 @@ class Mesa_interfaz():
             for palo in palos:
                 for carta in nro_carta:
                     cart = Carta(
-                        ruta_imagen=None,
+                        un_juego=un_juego,
                         numero=carta,
                         figura=palo
                     )
@@ -332,7 +313,7 @@ class Mesa_interfaz():
                     mazo.agregar_cartas(cart)
             # Joker
             cart = Carta(
-                ruta_imagen=None,
+                un_juego=un_juego,
                 numero='Joker',
                 figura='Especial'
             )
@@ -355,6 +336,11 @@ class Mesa_interfaz():
         
         #Mostrar visualmente la mano de cada jugador
         self.mostrar_manos(manos,mesa,lista_jugadores_reordenado)
-        
+        self.mostrar_mazo(mazo,mesa)
         # if mazo.cartas:
         #     self.descarte.append(mazo.cartas.pop(-1))
+    def mostrar_mazo(self,mazo,mesa):
+        escala = 0.05
+        accion = accion = lambda: print(f"las cartas en el mazo son {[carta.__str__() for carta in mazo.cartas]}")
+        mesa.botones.append(mazo.Elemento_mazo(mazo.mazo_lleno,escala,accion))
+    
