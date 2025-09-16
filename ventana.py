@@ -822,6 +822,9 @@ class Ventana:
             if hasattr(self, menu_name):
                 getattr(self, menu_name).manejar_eventos(evento)
 
+        if hasattr(self, "mesa") and hasattr(self.mesa, "mesa_interfaz"):
+            self.mesa.mesa_interfaz.manejar_evento_mazo(evento, self.mesa)
+
     def ejecutar_verificacion_hovers(self, posicion_raton):
         self.cartel_alerta.verificar_hover(posicion_raton)
         self.boton_jugar.verificar_hover(posicion_raton)

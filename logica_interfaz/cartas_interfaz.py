@@ -12,9 +12,12 @@ class Cartas_interfaz(Cartas):
         super().__init__(*args, **kwargs)
 
         self.ruta_imagen = ruta_imagen
-        self.imagen = pygame.image.load(self.ruta_imagen) if ruta_imagen is not None else None
-    def imagen_asociada(self):
-        return self.imagen
+        self.parte_superior = pygame.image.load(self.ruta_imagen) if ruta_imagen is not None else None
+        self.parte_trasera = None
+    def imagen_asociada(self,reverso=False):
+        if reverso:
+            return self.parte_trasera
+        return self.parte_superior
 
 
 
